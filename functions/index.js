@@ -21,17 +21,34 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh-JNVlFIdrceP
 
 export async function onRequestGet(context) {
   try {
-    const upstream = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
+    const upstream = await fetch(APPS_SCRIPT_URL, {
+      redirect: 'follow',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    });
     const html = await upstream.text();
+
+    const looksLikeDashboard = html.includes('id="app"') || html.length > 2000;
+    if (!looksLikeDashboard) {
+      return new Response(
+        '<div style="font-family:Arial,sans-serif;max-width:640px;margin:60px auto;color:#1B2126;">' +
+        '<h2>Got an unexpected response from Apps Script</h2>' +
+        '<p>HTTP status from Apps Script: <b>' + upstream.status + '</b>, body length: ' + html.length + '</p>' +
+        '<p>This usually means the Apps Script deployment still requires a Google login, or the deployment ' +
+        'wasn\'t redeployed as a "New version" after changing access to "Anyone". Raw response below:</p>' +
+        '<pre style="white-space:pre-wrap;background:#F5F6F7;padding:12px;border-radius:4px;font-size:12px;overflow:auto;">' +
+        html.replace(/</g, '&lt;').slice(0, 3000) +
+        '</pre></div>',
+        { status: 200, headers: { 'content-type': 'text/html; charset=UTF-8' } }
+      );
+    }
 
     return new Response(html, {
       status: upstream.status,
       headers: {
         'content-type': 'text/html; charset=UTF-8',
-        // Cache briefly at Cloudflare's edge so many people opening the
-        // link at once don't all separately trigger a fresh Apps Script
-        // execution. Data can lag behind a Sheet edit by up to this many
-        // seconds — lower it (or remove the header) for stricter freshness.
         'cache-control': 'public, max-age=60',
       },
     });
