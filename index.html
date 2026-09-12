@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Expert Appreciation Program — Command Deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --bg:#F4F5F6;
+  --bg-raised:#FFFFFF;
+  --panel:#FFFFFF;
+  --panel-2:#F1F3F4;
+  --line:#DEE2E5;
+  --line-soft:#E7E9EB;
+  --text:#1B2126;
+  --text-dim:#5B6670;
+  --text-faint:#8A939B;
+  --steel:#4E8FC0;
+  --steel-text:#215E93;
+  --steel-soft:#4E8FC022;
+  --amber:#E3A23D;
+  --amber-text:#8A5B0A;
+  --amber-soft:#E3A23D26;
+  --red:#D6564C;
+  --red-text:#B23327;
+  --red-soft:#D6564C26;
+  --green:#4B9E72;
+  --green-text:#2B7A50;
+  --green-soft:#4B9E7226;
+  --violet:#8C7FD1;
+  --violet-text:#5C4AA8;
+  --violet-soft:#8C7FD12b;
+  --radius:3px;
+  --disp:'Barlow Condensed',sans-serif;
+  --body:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden;max-width:100%;}
+body{-webkit-font-smoothing:antialiased;}
+::selection{background:var(--steel-soft);}
+a{color:inherit;}
+::-webkit-scrollbar{height:8px;width:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+#app{min-height:100vh;padding-bottom:60px;}
+
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:40;
+  background:#FFFFFF;
+  box-shadow:0 1px 0 var(--line-soft);
+  transition:transform .28s ease;
+  border-bottom:1px solid var(--line-soft);
+  padding:14px 22px 12px;
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-text h1{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:.02em;margin:0;line-height:1;text-transform:uppercase;}
+.brand-text p{margin:2px 0 0;font-size:11.5px;color:var(--text-dim);letter-spacing:.03em;}
+.top-actions{display:flex;gap:10px;align-items:center;}
+.support-contact{
+  text-align:right;padding-right:14px;margin-right:4px;border-right:1px solid var(--line-soft);
+  line-height:1.35;
+}
+.support-contact .sc-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);font-weight:600;}
+.support-contact .sc-name{font-size:12.5px;font-weight:700;color:var(--text);font-family:var(--body);}
+.support-contact .sc-role{font-size:11px;color:var(--text-dim);font-family:var(--mono);}
+@media(max-width:700px){.support-contact{display:none;}}
+.btn{
+  font-family:var(--body);font-size:12.5px;font-weight:600;letter-spacing:.02em;
+  padding:9px 14px;border-radius:var(--radius);border:1px solid var(--line);
+  background:var(--panel);color:var(--text);cursor:pointer;transition:.15s;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.btn:hover{border-color:var(--steel);color:var(--steel-text);}
+.btn:disabled{opacity:.6;cursor:not-allowed;}
+.btn.primary{background:var(--steel);border-color:var(--steel);color:#FFFFFF;}
+.btn.primary:hover{background:#3E7CAE;color:#FFFFFF;}
+
+
+/* Page mode switch — the two completely separate systems */
+.mode-switch{display:flex;gap:0;margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;width:fit-content;}
+.mode-btn{
+  font-family:var(--disp);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;
+  padding:10px 20px;background:var(--panel);color:var(--text-dim);cursor:pointer;border:none;border-right:1px solid var(--line);
+}
+.mode-btn:last-child{border-right:none;}
+.mode-btn.on{background:var(--steel);color:#FFFFFF;}
+
+/* Drilldown level bar (big buttons) */
+.level-bar{display:flex;align-items:stretch;gap:6px;margin-top:14px;flex-wrap:wrap;}
+.level-btn{
+  font-family:var(--disp);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;
+  padding:9px 16px;border-radius:var(--radius);border:1px solid var(--line-soft);background:var(--panel-2);
+  color:var(--text-faint);cursor:default;display:flex;flex-direction:column;line-height:1.25;min-width:96px;flex-shrink:0;
+}
+.level-btn .lv-name{font-family:var(--mono);font-size:10.5px;font-weight:500;text-transform:none;color:var(--text-dim);margin-top:1px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.level-btn.filled{cursor:pointer;color:var(--text);border-color:var(--line);}
+.level-btn.filled:hover{border-color:var(--steel);color:var(--steel-text);}
+.level-btn.current{background:var(--steel);color:#FFFFFF;border-color:var(--steel);}
+.level-btn.current .lv-name{color:#FFFFFFcc;}
+.level-arrow{align-self:center;color:var(--text-faint);font-size:14px;}
+
+.month-filter{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.month-filter .lbl{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin-right:2px;}
+.chip{
+  font-family:var(--mono);font-size:11.5px;padding:5px 11px;border-radius:20px;
+  border:1px solid var(--line);color:var(--text-dim);cursor:pointer;background:transparent;
+}
+.chip.on{background:var(--steel-soft);border-color:var(--steel);color:var(--steel-text);}
+
+.topbar.tb-hidden{transform:translateY(-100%);}
+.content{padding:22px;max-width:1440px;margin:0 auto;transition:margin-top .1s ease;}
+
+.scope-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.scope-title{font-family:var(--disp);font-size:34px;font-weight:700;text-transform:uppercase;letter-spacing:.01em;line-height:1;}
+.scope-sub{color:var(--text-dim);font-size:13px;margin-top:4px;}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;
+}
+.tag.High{background:var(--green-soft);color:var(--green-text);}
+.tag.Medium{background:var(--amber-soft);color:var(--amber-text);}
+.tag.Low{background:#D6564C1f;color:#E08880;}
+.tag.Critical{background:var(--red-soft);color:var(--red-text);}
+.tag.OnTrack{background:var(--green-soft);color:var(--green-text);}
+.tag.NeedsImprovement{background:var(--amber-soft);color:var(--amber-text);}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px;margin-bottom:22px;}
+.kpi{
+  background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);
+  padding:14px 16px;position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--steel);}
+.kpi.accent-amber::before{background:var(--amber);}
+.kpi.accent-green::before{background:var(--green);}
+.kpi.accent-red::before{background:var(--red);}
+.kpi.accent-violet::before{background:var(--violet);}
+.kpi .k-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);font-weight:600;}
+.kpi .k-value{font-family:var(--disp);font-size:27px;font-weight:700;margin-top:4px;line-height:1;font-variant-numeric:tabular-nums;}
+.kpi .k-sub{font-size:11px;color:var(--text-dim);margin-top:5px;font-family:var(--mono);}
+
+.section{margin-bottom:26px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+.section-title{font-family:var(--disp);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);}
+.section-title span{color:var(--steel-text);}
+.section-hint{font-size:11px;color:var(--text-faint);font-family:var(--mono);}
+.panel{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:16px;}
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;}
+.grid2.align-top{align-items:start;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+.tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;}
+.tab{
+  font-family:var(--mono);font-size:11.5px;padding:6px 12px;border:1px solid var(--line-soft);
+  background:var(--panel-2);color:var(--text-dim);cursor:pointer;border-radius:2px;
+}
+.tab.on{background:var(--steel);color:#FFFFFF;border-color:var(--steel);font-weight:600;}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);}
+td{padding:8px 10px;border-bottom:1px solid var(--line-soft);color:var(--text-dim);font-variant-numeric:tabular-nums;}
+tr.clickable{cursor:pointer;}
+tr.clickable:hover td{background:var(--panel-2);color:var(--text);}
+td.name{color:var(--text);font-weight:500;}
+td.num{font-family:var(--mono);text-align:right;}
+th.num{text-align:right;}
+.rank{font-family:var(--mono);color:var(--text-faint);width:26px;display:inline-block;}
+.bar-cell{display:flex;align-items:center;gap:8px;}
+.mini-bar{height:6px;border-radius:2px;background:var(--line-soft);flex:1;min-width:40px;overflow:hidden;}
+.mini-bar i{display:block;height:100%;background:var(--steel);}
+.table-wrap{max-height:420px;overflow:auto;}
+
+.insight-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.insight-list li{
+  padding:11px 13px;border-left:3px solid var(--steel);background:var(--panel-2);
+  border-radius:0 2px 2px 0;font-size:13px;line-height:1.5;color:var(--text-dim);
+}
+.insight-list li b{color:var(--text);}
+.insight-list li.risk{border-color:var(--red);}
+.insight-list li.opp{border-color:var(--green);}
+.insight-list li.watch{border-color:var(--amber);}
+
+.gauge-wrap{display:flex;flex-direction:column;gap:6px;}
+.gauge{height:20px;background:var(--line-soft);border-radius:2px;overflow:hidden;position:relative;border:1px solid var(--line);}
+.gauge i{display:block;height:100%;background:linear-gradient(90deg,var(--steel),var(--green));}
+.gauge .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--amber);}
+
+.profile-card{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:16px;}
+.avatar{
+  width:58px;height:58px;border-radius:2px;background:var(--panel-2);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:22px;font-weight:700;color:var(--steel-text);flex-shrink:0;
+}
+.profile-meta{font-size:12.5px;color:var(--text-dim);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;font-family:var(--mono);}
+.profile-meta b{color:var(--text);font-family:var(--body);}
+
+.chart-box{position:relative;height:260px;width:100%;overflow:hidden;}
+.chart-box.small{height:200px;}
+.chart-box canvas{max-width:100%;}
+
+.empty{padding:30px;text-align:center;color:var(--text-faint);font-size:13px;}
+.footnote{font-size:11px;color:var(--text-faint);margin-top:8px;line-height:1.5;}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.badge{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:2px;background:var(--panel-2);border:1px solid var(--line-soft);color:var(--text-dim);}
+
+.toast{
+  position:fixed;bottom:20px;right:20px;background:var(--panel);border:1px solid var(--steel);
+  padding:12px 18px;border-radius:var(--radius);font-size:13px;z-index:100;box-shadow:0 8px 24px #0008;
+  max-width:360px;
+}
+.toast.err{border-color:var(--red);}
+
+.search-box{
+  display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line-soft);
+  border-radius:2px;padding:7px 10px;margin-bottom:10px;
+}
+.search-box input{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--body);font-size:13px;width:100%;}
+.search-box input::placeholder{color:var(--text-faint);}
+
+.two-col{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media(max-width:800px){.two-col{grid-template-columns:1fr;}}
+
+.legend-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--text-dim);}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;}
+
+/* ---- Roadmap ---- */
+.roadmap-card{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:18px;}
+.roadmap-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+.roadmap-stat{font-family:var(--disp);font-size:20px;font-weight:700;}
+.roadmap-track{height:26px;background:var(--line-soft);border-radius:3px;overflow:hidden;position:relative;border:1px solid var(--line);margin-bottom:10px;}
+.roadmap-track i{display:block;height:100%;background:linear-gradient(90deg,var(--steel),var(--green));}
+.roadmap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;}
+.roadmap-mini{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:2px;padding:10px 12px;}
+.roadmap-mini .rlabel{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:600;}
+.roadmap-mini .rval{font-family:var(--disp);font-size:19px;font-weight:700;margin-top:3px;}
+.status-pill{font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;}
+.status-pill.OnTrack{background:var(--green-soft);color:var(--green-text);}
+.status-pill.NeedsImprovement{background:var(--amber-soft);color:var(--amber-text);}
+.status-pill.Critical{background:var(--red-soft);color:var(--red-text);}
+.dist-bar{display:flex;height:14px;border-radius:3px;overflow:hidden;margin-top:8px;}
+
+/* ============ Responsive: tablets & phones ============ */
+@media(max-width:900px){
+  .content{padding:16px;}
+  .scope-title{font-size:27px;}
+  .kpi .k-value{font-size:22px;}
+  .roadmap-card{padding:14px;}
+}
+@media(max-width:640px){
+  .topbar{padding:10px 14px 8px;}
+  .brand-text h1{font-size:16.5px;}
+  .brand-text p{font-size:10.5px;}
+  .top-actions{gap:8px;}
+  .btn{padding:10px 12px;font-size:11.5px;min-height:40px;}
+  .mode-switch{width:100%;margin-top:10px;}
+  .mode-btn{flex:1;padding:10px 8px;font-size:12.5px;text-align:center;}
+  .level-bar{
+    flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    margin-top:10px;padding-bottom:4px;scrollbar-width:thin;
+  }
+  .level-btn{min-width:74px;padding:7px 10px;font-size:11px;}
+  .level-btn .lv-name{font-size:9px;max-width:80px;}
+  .level-arrow{align-self:center;font-size:11px;flex-shrink:0;}
+  .month-filter{margin-top:10px;gap:6px;}
+  .chip{padding:6px 10px;font-size:11px;min-height:32px;display:inline-flex;align-items:center;}
+  .content{padding:14px;}
+  .scope-head{gap:10px;}
+  .scope-title{font-size:22px;}
+  .scope-sub{font-size:11.5px;}
+  .kpi-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;}
+  .kpi{padding:11px 12px;}
+  .kpi .k-label{font-size:9.5px;}
+  .kpi .k-value{font-size:19px;}
+  .kpi .k-sub{font-size:10px;}
+  .section-title{font-size:14px;}
+  .panel{padding:12px;}
+  table{font-size:11.5px;}
+  th{padding:7px 8px;font-size:9.5px;}
+  td{padding:7px 8px;}
+  .tab{padding:7px 10px;font-size:10.5px;min-height:32px;}
+  .roadmap-grid{grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;}
+  .roadmap-stat{font-size:16px;}
+  .profile-card{gap:12px;}
+  .avatar{width:46px;height:46px;font-size:18px;}
+  .profile-meta{font-size:11px;gap:10px;}
+}
+@media(max-width:380px){
+  .brand-text h1{font-size:14.5px;}
+  .scope-title{font-size:19px;}
+  .kpi-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));}
+}
+</style>
+</head>
+<body>
+<div id="app"><div style="padding:60px;text-align:center;font-family:Arial,sans-serif;color:#5B6670;">Loading live data…</div></div>
+<script>
+// This build fetches live data from the Apps Script backend on load,
+// instead of having the data server-templated into the page. That makes
+// this a genuinely static file (host it anywhere — Cloudflare Pages,
+// GitHub Pages, S3, etc.) while still always showing the latest numbers
+// from the Google Sheet.
+//
+// IMPORTANT: the Apps Script deployment this points to must have
+// "Who has access: Anyone" (no Google login) — otherwise this fetch will
+// fail with a CORS/auth error instead of returning data.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh-JNVlFIdrcePf55nONn78gQBXMCocoXOpQL4_yGb9jtPJ2CbSbRr4Uk_MwWJ4vG1/exec?format=json';
+let EMBEDDED = null;
+</script>
+<script>
+(function(){
+
+const CATEGORY_COLOR = {Normal:'#4E8FC0', Special:'#8C7FD1'};
+const TIER_NAMES = {80000:'Diamond', 130000:'Platinum', 200000:'Elite', 500000:'Supreme', 700000:'Royale'};
+function tierLabel(target){
+  const name = TIER_NAMES[target];
+  return name ? `${fmtNum(target)} pts (${name})` : `${fmtNum(target)} pts`;
+}
+const PRODUCT_PALETTE = ['#4E8FC0','#8C7FD1','#E3A23D','#4B9E72','#D6564C','#6BC2C9'];
+const UNIT = 'MT';
+
+if(window.Chart && window.ChartDataLabels){ Chart.register(ChartDataLabels); }
+function dl(overrides){
+  return Object.assign({
+    display:(ctx)=>{ const v = ctx.dataset.data[ctx.dataIndex]; return typeof v==='number' && v!==0; },
+    color:'#FFFFFF',
+    clip:false,
+    font:{size:10, family:"'IBM Plex Mono'", weight:'600'},
+    formatter:(v)=> typeof v==='number' ? Math.round(v).toLocaleString('en-US') : v,
+  }, overrides||{});
+}
+
+let META, ENGINEERS;
+let viewMode = 'summary'; // 'summary' | 'drilldown'
+let path = {region:null, area:null, territory:null, toId:null, toName:null, engId:null};
+let selectedMonths = [];
+let activeTab = {};
+let chartRegistry = {};
+let searchQuery = '';
+
+function buildEngineers(meta, rows){
+  const {baseCols, monthBlockCols, months, products} = meta;
+  return rows.map((r,idx)=>{
+    const e = {id: idx};
+    baseCols.forEach((c,i)=> e[c]=r[i]);
+    let p = baseCols.length;
+    e.monthly = {};
+    months.forEach(mon=>{
+      const block = {};
+      monthBlockCols.forEach((c,j)=> block[c]=r[p+j]);
+      p += monthBlockCols.length;
+      block.vol = {}; block.np = {};
+      products.forEach(prod=>{ block.vol[prod]=block['vol_'+prod]||0; block.np[prod]=block['np_'+prod]||0; });
+      e.monthly[mon]=block;
+    });
+    return e;
+  });
+}
+
+function loadData(embedded){
+  META = embedded.meta;
+  if(!META.programMonths) META.programMonths = 9;
+  ENGINEERS = buildEngineers(embedded.meta, embedded.rows);
+  selectedMonths = META.months.slice();
+  path = {region:null, area:null, territory:null, toId:null, toName:null, engId:null};
+  render();
+}
+
+/* ---------- number / formatting helpers ---------- */
+function fmtNum(n){ n=n||0; return Math.round(n).toLocaleString('en-US'); }
+function fmtPct(n){ if(!isFinite(n)) return '—'; return (n*100).toFixed(1)+'%'; }
+function safeDiv(a,b){ return b? a/b : 0; }
+function fmtSigned(n){ const v=Math.round(n); return (v>=0?'+':'')+v.toLocaleString('en-US'); }
+
+/* ---------- engineer-level accessors ---------- */
+function engMonthlyVol(e, months){ return months.reduce((s,m)=> s + ((e.monthly[m]||{}).totalVol||0), 0); }
+function engMonthlyPts(e, months){ return months.reduce((s,m)=> s + ((e.monthly[m]||{}).totalPts||0), 0); }
+function engProductVol(e, prod, months){ return months.reduce((s,m)=> s + (((e.monthly[m]||{}).vol||{})[prod]||0), 0); }
+function engProductNP(e, prod, months){ return months.reduce((s,m)=> s + (((e.monthly[m]||{}).np||{})[prod]||0), 0); }
+function engTotalNP(e, months){ return META.products.reduce((s,p)=>s+engProductNP(e,p,months),0); }
+function engIsContributor(e, months){ return engMonthlyVol(e, months) > 0; }
+function engIsInactive(e, months){ return engMonthlyVol(e, months) === 0; }
+
+/* Business rule: Special = HWP+HCG+PLC+ only. Normal = HSS+PLC only. Powercrete excluded from both. */
+function prodVolMap(e, months){
+  const o = {}; META.products.forEach(p=> o[p]=engProductVol(e,p,months)); return o;
+}
+function specialVol(pt){ return (pt.HWP||0)+(pt.HCG||0)+(pt['PLC+']||0); }
+function normalVol(pt){ return (pt.HSS||0)+(pt.PLC||0); }
+function otherVol(pt){ return (pt.Powercrete||0); }
+
+function matchesPath(e, p){
+  if(p.region && e.region!==p.region) return false;
+  if(p.area && e.area!==p.area) return false;
+  if(p.territory && e.territory!==p.territory) return false;
+  if(p.toId && (e.toId||e.toName)!==p.toId) return false;
+  return true;
+}
+/* Cumulative enrollment: an expert only "counts" from the month they enrolled onward.
+   The cutoff is the latest month currently selected in the month filter — so viewing
+   April only shows April-enrolled experts; adding May shows April+May enrolled, etc. */
+function monthTokenMatches(token, full){
+  if(full==null) return true;
+  const a = String(token).toLowerCase();
+  const b = String(full).toLowerCase();
+  return b.startsWith(a) || a.startsWith(b);
+}
+function enrollIndexOf(e){
+  for(let i=0;i<META.months.length;i++){
+    if(monthTokenMatches(META.months[i], e.enrollMonth)) return i;
+  }
+  return 0;
+}
+function enrollmentCutoffIdx(){
+  const idxs = selectedMonths.map(m=>META.months.indexOf(m)).filter(i=>i>=0);
+  return idxs.length ? Math.max(...idxs) : META.months.length-1;
+}
+function scopeEngineers(p){
+  const cutoff = enrollmentCutoffIdx();
+  return ENGINEERS.filter(e=>matchesPath(e,p) && enrollIndexOf(e)<=cutoff);
+}
+
+function currentLevel(){
+  if(path.engId!=null) return 'engineer';
+  if(path.toId) return 'to';
+  if(path.territory) return 'territory';
+  if(path.area) return 'area';
+  if(path.region) return 'region';
+  return 'national';
+}
+function childField(level){
+  return {national:'region', region:'area', area:'territory', territory:'to', to:'engineer'}[level];
+}
+
+function computeScopeMetrics(list, months){
+  const count = list.length;
+  const contributors = list.filter(e=>engIsContributor(e,months)).length;
+  const totalVol = list.reduce((s,e)=>s+engMonthlyVol(e,months),0);
+  const totalPts = list.reduce((s,e)=>s+engMonthlyPts(e,months),0);
+  const targetSum = list.reduce((s,e)=>s+(e.targetPoints||0),0);
+  const achVals = list.map(e=>e.achPct||0);
+  const avgAch = achVals.length? achVals.reduce((a,b)=>a+b,0)/achVals.length : 0;
+  const maxAch = achVals.length? Math.max(...achVals):0;
+  const minAch = achVals.length? Math.min(...achVals):0;
+  const inactiveBoth = list.filter(e=>engIsInactive(e,months)).length;
+  const zeroPts = list.filter(e=>engMonthlyPts(e,months)===0).length;
+  const productTotals = {};
+  META.products.forEach(prod=>{ productTotals[prod]=list.reduce((s,e)=>s+engProductVol(e,prod,months),0); });
+  const npTotals = {};
+  META.products.forEach(prod=>{ npTotals[prod]=list.reduce((s,e)=>s+engProductNP(e,prod,months),0); });
+  const totalNP = Object.values(npTotals).reduce((a,b)=>a+b,0);
+  const monthlyTrend = META.months.map(m=>{
+    const vol = list.reduce((s,e)=>s+((e.monthly[m]||{}).totalVol||0),0);
+    const pts = list.reduce((s,e)=>s+((e.monthly[m]||{}).totalPts||0),0);
+    const contrib = list.filter(e=>((e.monthly[m]||{}).totalVol||0)>0).length;
+    const np = list.reduce((s,e)=> s+META.products.reduce((s2,p)=>s2+(((e.monthly[m]||{}).np||{})[p]||0),0), 0);
+    return {month:m, vol, pts, contrib, np};
+  });
+  return {count, contributors, nonContributors:count-contributors, totalVol, totalPts, targetSum,
+          avgAch, maxAch, minAch, inactiveBoth, zeroPts, productTotals, npTotals, totalNP, monthlyTrend};
+}
+
+function perfCategory(score, q){
+  if(score<=0) return 'Critical';
+  if(score>=q.q75) return 'High';
+  if(score>=q.q40) return 'Medium';
+  return 'Low';
+}
+function quantiles(arr){
+  const s = arr.slice().sort((a,b)=>a-b);
+  if(!s.length) return {q40:0,q75:0};
+  const at = p => s[Math.min(s.length-1, Math.floor(p*s.length))];
+  return {q40:at(0.4), q75:at(0.75)};
+}
+function groupBy(list, keyFn, nameFn){
+  const map = new Map();
+  list.forEach(e=>{
+    const k = keyFn(e);
+    if(k==null) return;
+    if(!map.has(k)) map.set(k, {key:k, name:nameFn(e), items:[]});
+    map.get(k).items.push(e);
+  });
+  return Array.from(map.values());
+}
+
+/* ---------- Target Achievement Roadmap ---------- */
+function engineerRoadmap(e){
+  const target = e.targetPoints||0;
+  const current = e.totalPoints||0;
+  const remaining = target-current;
+  const achPct = target? current/target : (e.achPct||0);
+  const elapsed = META.months.length;
+  const totalProgramMonths = META.programMonths||9;
+  const remainingMonths = Math.max(totalProgramMonths-elapsed, 0);
+  const avgMonthly = elapsed? current/elapsed : 0;
+  const requiredMonthly = remainingMonths>0 ? Math.max(remaining,0)/remainingMonths : (remaining>0? Infinity : 0);
+  const requiredGrowthPct = avgMonthly>0 ? (requiredMonthly-avgMonthly)/avgMonthly : (requiredMonthly>0? Infinity : 0);
+  let status;
+  if(remaining<=0) status='OnTrack';
+  else if(remainingMonths<=0) status='Critical';
+  else if(requiredMonthly<=avgMonthly*1.15) status='OnTrack';
+  else if(requiredMonthly<=avgMonthly*1.75) status='NeedsImprovement';
+  else status='Critical';
+  return {target, current, remaining, achPct, elapsed, remainingMonths, avgMonthly, requiredMonthly, requiredGrowthPct, status};
+}
+function scopeRoadmap(list){
+  const target = list.reduce((s,e)=>s+(e.targetPoints||0),0);
+  const current = list.reduce((s,e)=>s+(e.totalPoints||0),0);
+  const remaining = target-current;
+  const elapsed = META.months.length;
+  const totalProgramMonths = META.programMonths||9;
+  const remainingMonths = Math.max(totalProgramMonths-elapsed,0);
+  const requiredMonthly = remainingMonths>0? Math.max(remaining,0)/remainingMonths : (remaining>0?Infinity:0);
+  const statuses = list.map(e=>engineerRoadmap(e).status);
+  const dist = {OnTrack:0, NeedsImprovement:0, Critical:0};
+  statuses.forEach(s=> dist[s]=(dist[s]||0)+1);
+  return {target, current, remaining, remainingMonths, requiredMonthly, dist, count:list.length};
+}
+const STATUS_LABEL = {OnTrack:'🟢 On Track', NeedsImprovement:'🟡 Needs Improvement', Critical:'🔴 Critical'};
+const STATUS_COLOR = {OnTrack:'#4B9E72', NeedsImprovement:'#E3A23D', Critical:'#D6564C'};
+
+/* ---------- Target Calibration Check ---------- */
+function engineerCalibration(e){
+  const elapsed = META.months.length;
+  const target = e.targetPoints||0;
+  const current = e.totalPoints||0;
+  const avgMonthly = elapsed? current/elapsed : 0;
+  const totalProgramMonths = META.programMonths||9;
+  const projectedFull = avgMonthly*totalProgramMonths;
+  const ratio = target? projectedFull/target : (projectedFull>0? Infinity : 0);
+  let calib;
+  if(elapsed<1 || avgMonthly<=0) calib='Insufficient data';
+  else if(ratio < 0.8) calib='Overstretched';
+  else if(ratio > 1.10) calib='TooEasy';
+  else calib='WellCalibrated';
+  return {avgMonthly, target, projectedFull, ratio, calib, elapsed};
+}
+const CALIB_LABEL = {Overstretched:'Behind Target', TooEasy:'Exceeding Target', WellCalibrated:'On Target', 'Insufficient data':'No Volume'};
+const CALIB_COLOR = {Overstretched:'#D6564C', TooEasy:'#8C7FD1', WellCalibrated:'#4B9E72', 'Insufficient data':'#8A939B'};
+
+/* ---------- Year-End Projection ---------- */
+function scopeProjection(list){
+  const elapsed = META.months.length;
+  const totalProgramMonths = META.programMonths||9;
+  const current = list.reduce((s,e)=>s+(e.totalPoints||0),0);
+  const target = list.reduce((s,e)=>s+(e.targetPoints||0),0);
+  const avgMonthly = elapsed? current/elapsed : 0;
+  const projectedFull = avgMonthly*totalProgramMonths;
+  const projectedPct = target? projectedFull/target : 0;
+  const remainingMonths = Math.max(totalProgramMonths-elapsed,0);
+  let status;
+  if(projectedPct>=1) status='OnTrack';
+  else if(projectedPct>=0.75) status='NeedsImprovement';
+  else status='Critical';
+  const monthLabels = (META.programMonthNames && META.programMonthNames.length===totalProgramMonths) ? META.programMonthNames : META.months.concat(Array.from({length:Math.max(totalProgramMonths-META.months.length,0)},(_,i)=>'M'+(META.months.length+i+1)));
+  let cum=0;
+  const actualSeries = [];
+  META.months.forEach(m=>{ cum += list.reduce((s,e)=>s+((e.monthly[m]||{}).totalPts||0),0); actualSeries.push(Math.round(cum)); });
+  const projectedTail = [];
+  let pcum = cum;
+  for(let i=elapsed;i<totalProgramMonths;i++){ pcum += avgMonthly; projectedTail.push(Math.round(pcum)); }
+  return {elapsed, current, target, avgMonthly, projectedFull, projectedPct, remainingMonths, status, monthLabels, actualSeries, projectedTail, totalProgramMonths};
+}
+
+/* ---------- Chart helper ---------- */
+function makeChart(canvasId, config){
+  if(chartRegistry[canvasId]){ chartRegistry[canvasId].destroy(); }
+  const ctx = document.getElementById(canvasId);
+  if(!ctx) return;
+  config.options = Object.assign({responsive:true, maintainAspectRatio:false}, config.options||{});
+  chartRegistry[canvasId] = new Chart(ctx, config);
+}
+
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
+function escapeHtml(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+function kpi(label, value, sub, accent){
+  return `<div class="kpi ${accent?'accent-'+accent:''}"><div class="k-label">${label}</div><div class="k-value">${value}</div>${sub?`<div class="k-sub">${sub}</div>`:''}</div>`;
+}
+
+/* ---------- Level bar (Drill-Down Center's big buttons) ---------- */
+function levelBarHTML(){
+  const levels = [
+    {key:'national', label:'National', name:''},
+    {key:'region', label:'Region', name:path.region||''},
+    {key:'area', label:'Area', name:path.area||''},
+    {key:'territory', label:'Territory', name:path.territory||''},
+    {key:'to', label:'Technical Officer', name:path.toName||''},
+    {key:'engineer', label:'Expert', name:path.engId!=null?(ENGINEERS[path.engId]||{}).name:''},
+  ];
+  const cur = currentLevel();
+  const order = ['national','region','area','territory','to','engineer'];
+  const curIdx = order.indexOf(cur);
+  return levels.map((lv,i)=>{
+    const filled = i<=curIdx && (i===0 || lv.name);
+    const isCurrent = lv.key===cur;
+    const cls = isCurrent? 'current' : (filled? 'filled':'');
+    return `${i>0?'<span class="level-arrow">→</span>':''}<div class="level-btn ${cls}" data-lvidx="${i}">${lv.label}${lv.name?`<span class="lv-name">${escapeHtml(lv.name)}</span>`:''}</div>`;
+  }).join('');
+}
+function goToLevelIdx(i){
+  const order = ['national','region','area','territory','to','engineer'];
+  const cur = currentLevel();
+  const curIdx = order.indexOf(cur);
+  if(i>curIdx) return; // not reachable yet
+  const target = {region:null,area:null,territory:null,toId:null,toName:null,engId:null};
+  if(i>=1) target.region = path.region;
+  if(i>=2) target.area = path.area;
+  if(i>=3) target.territory = path.territory;
+  if(i>=4){ target.toId = path.toId; target.toName = path.toName; }
+  if(i>=5) target.engId = path.engId;
+  path = target;
+  render();
+}
+
+function monthFilterHTML(){
+  return `<div class="month-filter"><span class="lbl">Months in view</span>`+
+    META.months.map(m=>`<span class="chip ${selectedMonths.includes(m)?'on':''}" data-month="${m}">${m}</span>`).join('')
+    +`</div>`;
+}
+function toggleMonth(m){
+  if(selectedMonths.includes(m)){ if(selectedMonths.length>1) selectedMonths = selectedMonths.filter(x=>x!==m); }
+  else { selectedMonths.push(m); selectedMonths.sort((a,b)=>META.months.indexOf(a)-META.months.indexOf(b)); }
+  render();
+}
+
+/* ================= MASTER RENDER ================= */
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="brand">
+          <div class="brand-text">
+            <h1>Expert Appreciation Program</h1>
+            <p>Performance Command Deck · Apr–Dec cycle · volumes in ${UNIT} · live from Google Sheet</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <div class="support-contact">
+            <div class="sc-label">Contact for Technical Support</div>
+            <div class="sc-name">Barshan Roy Turna</div>
+            <div class="sc-role">Assistant Engineer, Khulna · 01332531602</div>
+          </div>
+          <button class="btn primary" id="btnRefresh">⟳ Refresh data</button>
+        </div>
+      </div>
+      <div class="mode-switch">
+        <button class="mode-btn ${viewMode==='summary'?'on':''}" data-mode="summary">Executive Summary</button>
+        <button class="mode-btn ${viewMode==='drilldown'?'on':''}" data-mode="drilldown">Drill-Down Analytics Center</button>
+      </div>
+      ${viewMode==='drilldown' ? `<div class="level-bar">${levelBarHTML()}</div>` : ''}
+      ${monthFilterHTML()}
+    </div>
+    <div class="content" id="content"></div>
+  `;
+  document.getElementById('btnRefresh').onclick = ()=> refreshData();
+  document.querySelectorAll('.chip[data-month]').forEach(c=> c.onclick = ()=> toggleMonth(c.dataset.month));
+  document.querySelectorAll('.mode-btn').forEach(b=> b.onclick = ()=>{ viewMode=b.dataset.mode; render(); });
+  document.querySelectorAll('.level-btn').forEach(b=> b.onclick = ()=> goToLevelIdx(+b.dataset.lvidx));
+
+  const topbarEl = document.querySelector('.topbar');
+  const content = document.getElementById('content');
+  content.style.marginTop = topbarEl.offsetHeight + 'px';
+  setupScrollHide();
+
+  if(viewMode==='summary'){ renderSummaryPage(content); }
+  else { renderDrilldownPage(content); }
+}
+
+let scrollHideReady = false;
+function setupScrollHide(){
+  if(scrollHideReady) return;
+  scrollHideReady = true;
+  let lastY = window.scrollY;
+  window.addEventListener('scroll', ()=>{
+    const topbar = document.querySelector('.topbar');
+    if(!topbar) return;
+    const y = window.scrollY;
+    if(y < 60){ topbar.classList.remove('tb-hidden'); }
+    else if(y > lastY + 4){ topbar.classList.add('tb-hidden'); }
+    else if(y < lastY - 4){ topbar.classList.remove('tb-hidden'); }
+    lastY = y;
+  }, {passive:true});
+  let resizeTimer;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(()=>{
+      const topbar = document.querySelector('.topbar');
+      const content = document.getElementById('content');
+      if(topbar && content){ content.style.marginTop = topbar.offsetHeight + 'px'; }
+    }, 120);
+  });
+}
+
+/* ================= PAGE 1: EXECUTIVE SUMMARY (national only, clean) ================= */
+function renderSummaryPage(content){
+  const list = scopeEngineers({});
+  const m = computeScopeMetrics(list, selectedMonths);
+
+  content.appendChild(el(`
+    <div class="scope-head">
+      <div>
+        <div class="scope-title">Executive Summary</div>
+        <div class="scope-sub">National view · ${m.count} experts · ${m.contributors} contributing · ${fmtNum(m.totalVol)} ${UNIT} · ${fmtNum(m.totalPts)} pts</div>
+      </div>
+      <button class="btn" id="btnGoDrilldown">Open Drill-Down Analytics Center →</button>
+    </div>
+  `));
+  setTimeout(()=>{ const b=document.getElementById('btnGoDrilldown'); if(b) b.onclick=()=>{ viewMode='drilldown'; render(); }; },0);
+
+  content.appendChild(renderKpiGrid(m));
+  content.appendChild(renderEnrollmentParticipation('national', m, list));
+  content.appendChild(renderProductSection(m));
+  content.appendChild(renderTrendSection(m));
+  content.appendChild(renderNewProjectSection(m, list, 'national', true));
+  content.appendChild(renderCalibrationSection(list, true));
+
+  // Region comparison — clickable straight into drilldown
+  const regions = groupBy(list, e=>e.region, e=>e.region).map(g=>({...g, m:computeScopeMetrics(g.items, selectedMonths)}));
+  regions.sort((a,b)=>b.m.totalVol-a.m.totalVol);
+  const cmp = el(`<div class="section"></div>`);
+  cmp.innerHTML = `
+    <div class="section-head"><div class="section-title">Region <span>Comparison</span></div><div class="section-hint">click a region to open its full analytics page</div></div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:26px;"></th><th>Region</th><th class="num">Experts</th><th class="num">Contributors</th><th class="num">Volume (${UNIT})</th><th class="num">Points</th></tr></thead>
+        <tbody>
+        ${regions.map((r,i)=>`<tr class="clickable" data-region="${escapeHtml(r.key)}">
+          <td class="rank">${i+1}</td><td class="name">${escapeHtml(r.name)}</td>
+          <td class="num">${r.m.count}</td><td class="num">${r.m.contributors}</td>
+          <td class="num">${fmtNum(r.m.totalVol)}</td><td class="num">${fmtNum(r.m.totalPts)}</td>
+        </tr>`).join('')}
+        </tbody></table>
+      </div>
+    </div>
+  `;
+  content.appendChild(cmp);
+  setTimeout(()=>{
+    cmp.querySelectorAll('tr.clickable').forEach(tr=> tr.onclick=()=>{ viewMode='drilldown'; path={region:tr.dataset.region,area:null,territory:null,toId:null,toName:null,engId:null}; render(); });
+  },0);
+
+  content.appendChild(renderLeaderboardSection('national-summary', list));
+  content.appendChild(renderInsightsSection());
+}
+
+/* ================= PAGE 2: DRILL-DOWN ANALYTICS CENTER ================= */
+function renderDrilldownPage(content){
+  const level = currentLevel();
+  const list = scopeEngineers(path);
+  const m = computeScopeMetrics(list, selectedMonths);
+
+  if(level==='engineer'){ renderEngineerProfile(content, ENGINEERS[path.engId]); return; }
+
+  let scopeName = 'National';
+  if(level==='region') scopeName = path.region;
+  else if(level==='area') scopeName = path.area;
+  else if(level==='territory') scopeName = path.territory;
+  else if(level==='to') scopeName = path.toName;
+
+  content.appendChild(el(`<div class="scope-head"><div><div class="scope-title">${escapeHtml(scopeName)}</div><div class="scope-sub">${m.count} experts in scope · ${m.contributors} contributing · ${fmtNum(m.totalVol)} ${UNIT} · ${fmtNum(m.totalPts)} pts</div></div>${tagForScope(m)}</div>`));
+
+  content.appendChild(renderExplorerSection(level, list));
+  content.appendChild(renderKpiGrid(m));
+  content.appendChild(renderEnrollmentParticipation(level, m, list));
+  content.appendChild(renderProductSection(m));
+  content.appendChild(renderTrendSection(m));
+  content.appendChild(renderNewProjectSection(m, list, level, false));
+  content.appendChild(renderCalibrationSection(list, false));
+  content.appendChild(renderLeaderboardSection(level, list));
+  if(level==='national') content.appendChild(renderInsightsSection());
+}
+
+function tagForScope(m){
+  const cat = m.avgAch>=0.3?'High': m.avgAch>=0.12?'Medium': m.contributors>0?'Low':'Critical';
+  return `<span class="tag ${cat}">${cat} performance</span>`;
+}
+
+/* ---- KPI grid ---- */
+function renderKpiGrid(m){
+  const wrap = el(`<div class="kpi-grid"></div>`);
+  wrap.innerHTML =
+    kpi('Experts in scope', fmtNum(m.count), 'total enrolled in this scope') +
+    kpi('Contributing', fmtNum(m.contributors), 'gave volume in any selected month', 'green') +
+    kpi('Zero volume', fmtNum(m.nonContributors), 'no volume in selected months', 'red') +
+    kpi('Participation rate', fmtPct(safeDiv(m.contributors,m.count)), selectedMonths.join(' + '), 'amber') +
+    kpi('Total volume', fmtNum(m.totalVol)+' '+UNIT, selectedMonths.join(' + '), 'violet');
+  return wrap;
+}
+
+/* ---- Enrollment / participation ---- */
+function renderEnrollmentParticipation(level, m, list){
+  const sec = el(`<div class="section"></div>`);
+  const field = childField(level);
+  let breakdownHTML = '';
+  if(field && field!=='engineer'){
+    let groups;
+    if(field==='region') groups = groupBy(list, e=>e.region, e=>e.region);
+    else if(field==='area') groups = groupBy(list, e=>e.area, e=>e.area);
+    else if(field==='territory') groups = groupBy(list, e=>e.territory, e=>e.territory);
+    else if(field==='to') groups = groupBy(list, e=>e.toId||e.toName, e=>e.toName);
+    const rows = (groups||[]).map(g=>{
+      const enrolled = g.items.length;
+      const contributors = g.items.filter(e=>engIsContributor(e, selectedMonths)).length;
+      return {name:g.name, enrolled, contributors};
+    }).sort((a,b)=>b.enrolled-a.enrolled);
+    const label = {region:'Region', area:'Area', territory:'Territory', to:'Technical Officer'}[field];
+    breakdownHTML = `
+      <div class="panel">
+        <div class="section-title" style="margin-bottom:10px;">Enrollment Summary by ${label}</div>
+        <div class="table-wrap"><table><thead><tr><th>${label}</th><th class="num">Enrolled</th><th class="num">Contributors</th><th class="num">Participation</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr><td class="name">${escapeHtml(r.name)}</td><td class="num">${fmtNum(r.enrolled)}</td><td class="num">${fmtNum(r.contributors)}</td><td class="num">${fmtPct(safeDiv(r.contributors,r.enrolled))}</td></tr>`).join('') || `<tr><td colspan="4" class="empty">No data in this scope.</td></tr>`}
+        </tbody></table></div>
+      </div>`;
+  }
+  const tiers = tierDistribution(list);
+  const tierHTML = `
+      <div class="panel">
+        <div class="section-title" style="margin-bottom:10px;">Enrollment by Target Tier</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Target tier</th><th class="num">Experts</th><th class="num">Contributors</th><th class="num">Participation percentage</th></tr></thead>
+          <tbody>
+          ${tiers.map(t=>`<tr>
+            <td class="name">${tierLabel(t.target)}</td>
+            <td class="num">${fmtNum(t.count)}</td>
+            <td class="num">${fmtNum(t.contributors)}</td>
+            <td class="num">${fmtPct(safeDiv(t.contributors,t.count))}</td>
+          </tr>`).join('') || `<tr><td colspan="4" class="empty">No experts in this scope.</td></tr>`}
+          </tbody></table>
+        </div>
+        <div class="footnote">${tiers.length} distinct target tiers in this scope · ${fmtNum(list.length)} experts total.</div>
+      </div>`;
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Enrollment <span>&</span> Participation</div></div>
+    <div class="grid2 align-top">
+      ${breakdownHTML || `<div class="panel"><div class="footnote">No further breakdown available at this level.</div></div>`}
+      ${tierHTML}
+    </div>
+  `;
+  return sec;
+}
+
+/* ---- Enrollment by Target Tier (data helper, table rendered inside Enrollment & Participation) ---- */
+function tierDistribution(list){
+  const map = new Map();
+  list.forEach(e=>{
+    const t = e.targetPoints||0;
+    if(!map.has(t)) map.set(t, {target:t, count:0, contributors:0, totalVol:0, totalPts:0});
+    const o = map.get(t);
+    o.count++;
+    if(engIsContributor(e, selectedMonths)) o.contributors++;
+    o.totalVol += engMonthlyVol(e, selectedMonths);
+    o.totalPts += engMonthlyPts(e, selectedMonths);
+  });
+  return Array.from(map.values()).sort((a,b)=>a.target-b.target);
+}
+
+/* ---- Product section ---- */
+function renderProductSection(m){
+  const sec = el(`<div class="section"></div>`);
+  const products = META.products;
+  const total = products.reduce((s,p)=>s+m.productTotals[p],0);
+  const normalTot = products.filter(p=>['HSS','PLC'].includes(p)).reduce((s,p)=>s+m.productTotals[p],0);
+  const specialTot = products.filter(p=>['HWP','HCG','PLC+'].includes(p)).reduce((s,p)=>s+m.productTotals[p],0);
+  const otherTot = total - normalTot - specialTot;
+  const sortedProducts = products.slice().sort((a,b)=>m.productTotals[b]-m.productTotals[a]);
+  const bizProducts = sortedProducts.filter(p=>p!=='Powercrete' || m.productTotals[p]>0);
+  const best = bizProducts[0], worst = bizProducts[bizProducts.length-1];
+
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Product <span>Performance</span></div></div>
+    <div class="grid2 align-top">
+      <div class="panel">
+        <div class="chart-box"><canvas id="chartProdMix"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="section-title" style="margin-bottom:10px;">Total Vs Special Product</div>
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr;">
+          ${kpi('Total volume', fmtNum(total)+' '+UNIT, (total>0? fmtPct(safeDiv(total,total)) : '0.0%')+' of all volume')}
+          ${kpi('Special product volume', fmtNum(specialTot)+' '+UNIT, fmtPct(safeDiv(specialTot,total))+' of total', 'violet')}
+        </div>
+        <div class="table-wrap" style="margin-top:12px;">
+          <table><thead><tr><th>Product</th><th class="num">Volume</th><th class="num">Share</th></tr></thead><tbody>
+          ${sortedProducts.map(p=>{const cat = ['HSS','PLC'].includes(p)?'Normal':(['HWP','HCG','PLC+'].includes(p)?'Special':'Other');
+            return `<tr><td class="name">${META.labelMap[p]||p}</td><td class="num">${fmtNum(m.productTotals[p])}</td>
+            <td class="num"><div class="bar-cell"><div class="mini-bar"><i style="width:${(safeDiv(m.productTotals[p],total)*100).toFixed(1)}%;background:${cat==='Normal'?CATEGORY_COLOR.Normal:(cat==='Special'?CATEGORY_COLOR.Special:'#647079')}"></i></div>${fmtPct(safeDiv(m.productTotals[p],total))}</div></td></tr>`;}).join('')}
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  `;
+  setTimeout(()=>{
+    makeChart('chartProdMix', {
+      type:'bar',
+      data:{ labels:products.map(p=>META.labelMap[p]||p),
+        datasets:[{label:'Volume ('+UNIT+')', data:products.map(p=>m.productTotals[p]), backgroundColor: products.map((p,i)=>PRODUCT_PALETTE[i%PRODUCT_PALETTE.length]), borderRadius:2}]},
+      options:{plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'top', color:'#1B2126'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}}, y:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'12%', beginAtZero:true}}}
+    });
+  },0);
+  return sec;
+}
+
+/* ---- Trend section ---- */
+function renderTrendSection(m){
+  const sec = el(`<div class="section"></div>`);
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Monthly <span>Trend</span></div></div>
+    <div class="grid3">
+      <div class="panel"><div class="section-title" style="margin-bottom:10px;">Points per month</div><div class="chart-box"><canvas id="chartTrendPts"></canvas></div></div>
+      <div class="panel"><div class="section-title" style="margin-bottom:10px;">Volume (${UNIT}) per month</div><div class="chart-box"><canvas id="chartTrendVol"></canvas></div></div>
+      <div class="panel"><div class="section-title" style="margin-bottom:10px;">Contributors per month</div><div class="chart-box"><canvas id="chartContrib"></canvas></div></div>
+    </div>
+  `;
+  setTimeout(()=>{
+    makeChart('chartTrendPts', {
+      type:'bar',
+      data:{ labels: m.monthlyTrend.map(t=>t.month), datasets:[{label:'Points', data:m.monthlyTrend.map(t=>t.pts), backgroundColor:'#E3A23D', borderRadius:2}]},
+      options:{ plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'top', color:'#1B2126'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}}, y:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'12%', beginAtZero:true}}}
+    });
+    makeChart('chartTrendVol', {
+      type:'bar',
+      data:{ labels: m.monthlyTrend.map(t=>t.month), datasets:[{label:'Volume ('+UNIT+')', data:m.monthlyTrend.map(t=>t.vol), backgroundColor:'#4E8FC0', borderRadius:2}]},
+      options:{ plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'top', color:'#1B2126'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}}, y:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'12%', beginAtZero:true}}}
+    });
+    makeChart('chartContrib', {
+      type:'bar',
+      data:{ labels:m.monthlyTrend.map(t=>t.month), datasets:[{label:'Contributors', data:m.monthlyTrend.map(t=>t.contrib), backgroundColor:'#4B9E72', borderRadius:2}]},
+      options:{plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'top', color:'#1B2126'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}}, y:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'12%', beginAtZero:true}}}
+    });
+  },0);
+  return sec;
+}
+
+/* ---- Year-End Projection section ---- */
+function projectionPanelHTML(list, scopeLabel){
+  const p = scopeProjection(list);
+  return {
+    html: `
+      <div class="panel">
+        <div class="section-title" style="margin-bottom:10px;">Year-End Projection</div>
+        <div class="roadmap-top" style="margin-bottom:12px;">
+          <span class="status-pill ${p.status}">${STATUS_LABEL[p.status]}</span>
+        </div>
+        <div class="roadmap-grid" style="grid-template-columns:1fr 1fr;">
+          ${roadmapMini('Current pace / month', fmtNum(p.avgMonthly)+' pts')}
+          ${roadmapMini('Target pool', fmtNum(p.target)+' pts')}
+          ${roadmapMini('Projected year-end points', fmtNum(p.projectedFull)+' pts')}
+          ${roadmapMini('Projected achievement', fmtPct(p.projectedPct))}
+          ${roadmapMini('Months elapsed', p.elapsed+' of '+p.totalProgramMonths)}
+          ${roadmapMini('Months remaining', p.remainingMonths)}
+        </div>
+        <div class="footnote" style="margin-top:12px;">If ${scopeLabel} keeps averaging ${fmtNum(p.avgMonthly)} points/month for the rest of the cycle, it lands at ${fmtPct(p.projectedPct)} of its target pool by December. This recalculates automatically as new months are added to the Sheet.</div>
+      </div>`,
+    p
+  };
+}
+
+function renderNewProjectSection(m, list, level, isSummary){
+  const sec = el(`<div class="section"></div>`);
+  const products = META.products.filter(p=>p!=='Powercrete' || m.npTotals[p]>0);
+  const specialNP = (m.npTotals.HWP||0)+(m.npTotals.HCG||0)+(m.npTotals['PLC+']||0);
+  const normalNP = (m.npTotals.HSS||0)+(m.npTotals.PLC||0);
+  activeTab.npBoard = activeTab.npBoard || 'Top Generators';
+
+  function npRows(sortFn){
+    const arr = list.map(e=>({e, np: engTotalNP(e, selectedMonths)}));
+    arr.sort(sortFn);
+    return arr;
+  }
+  const tabs = ['Top Generators','Lowest Generators'];
+  let rows;
+  if(!isSummary){
+    rows = activeTab.npBoard==='Top Generators' ? npRows((a,b)=>b.np-a.np) : npRows((a,b)=>a.np-b.np);
+  }
+  const maxNP = Math.max(1, ...products.map(p=>m.npTotals[p]));
+
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Project <span>Analysis</span></div><div class="section-hint">"Projects" columns = count of projects generated, not volume</div></div>
+    <div class="grid2 align-top">
+      <div class="panel">
+        <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:0;">
+          ${kpi('Total projects', fmtNum(m.totalNP), `${selectedMonths.join(' + ')}`, 'violet')}
+          ${kpi('Special-product projects', fmtNum(specialNP), fmtPct(safeDiv(specialNP,m.totalNP))+' of total')}
+        </div>
+        <div class="chart-box small" style="margin-top:14px;"><canvas id="chartNPProd"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="section-title" style="margin-bottom:10px;">Monthly project trend</div>
+        <div class="chart-box small"><canvas id="chartNPTrend"></canvas></div>
+      </div>
+    </div>
+    ${isSummary ? '' : `
+    <div class="panel" style="margin-top:14px;">
+      <div class="tabs">${tabs.map(t=>`<div class="tab ${activeTab.npBoard===t?'on':''}" data-nptab="${t}">${t}</div>`).join('')}</div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:26px;"></th><th>Expert</th><th>Territory / TO</th><th class="num">Projects</th></tr></thead>
+        <tbody>${(rows||[]).map((r,i)=>`<tr class="clickable" data-eng="${r.e.id}"><td class="rank">${i+1}</td><td class="name">${escapeHtml(r.e.name)}</td><td>${escapeHtml(r.e.territory)} · ${escapeHtml(r.e.toName)}</td><td class="num">${fmtNum(r.np)}</td></tr>`).join('') || `<tr><td colspan="4" class="empty">No experts in scope.</td></tr>`}</tbody></table>
+      </div>
+    </div>`}
+  `;
+  setTimeout(()=>{
+    makeChart('chartNPProd', {
+      type:'bar',
+      data:{labels:products.map(p=>META.labelMap[p]||p), datasets:[{label:'Projects', data:products.map(p=>m.npTotals[p]), backgroundColor:products.map((p,i)=>PRODUCT_PALETTE[i%PRODUCT_PALETTE.length]), borderRadius:2}]},
+      options:{indexAxis:'y', plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'end', color:'#1B2126'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'15%', beginAtZero:true}, y:{ticks:{color:'#5B6670'},grid:{display:false}}}}
+    });
+    makeChart('chartNPTrend', {
+      type:'bar',
+      data:{labels:m.monthlyTrend.map(t=>t.month), datasets:[{label:'Projects', data:m.monthlyTrend.map(t=>t.np), backgroundColor:'#8C7FD1', borderRadius:2}]},
+      options:{plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'top', color:'#5C4AA8'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}}, y:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'12%', beginAtZero:true}}}
+    });
+    sec.querySelectorAll('.tab[data-nptab]').forEach(t=> t.onclick=()=>{ activeTab.npBoard=t.dataset.nptab; const fresh=renderNewProjectSection(m,list,level,isSummary); sec.replaceWith(fresh); });
+    sec.querySelectorAll('tr.clickable').forEach(tr=> tr.onclick=()=>{ viewMode='drilldown'; path.engId=Number(tr.dataset.eng); render(); });
+  },0);
+  return sec;
+}
+
+/* ---- Target Achievement Roadmap — aggregate view for scope pages ---- */
+function roadmapMini(label, val){
+  return `<div class="roadmap-mini"><div class="rlabel">${label}</div><div class="rval">${val}</div></div>`;
+}
+
+/* ---- Target Calibration Check ---- */
+function renderCalibrationSection(list, isSummary){
+  const sec = el(`<div class="section"></div>`);
+  const all = list.map(e=>({e, c:engineerCalibration(e)}));
+  const dist = {Overstretched:0, TooEasy:0, WellCalibrated:0, 'Insufficient data':0};
+  all.forEach(r=> dist[r.c.calib]=(dist[r.c.calib]||0)+1);
+  const denom = Math.max(all.length,1);
+
+  const tabs = ['Behind Target','On Target','Exceeding Target','No Volume'];
+  activeTab.calib = activeTab.calib || tabs[0];
+  let rows;
+  if(activeTab.calib===tabs[0]) rows = all.filter(r=>r.c.calib==='Overstretched').sort((a,b)=>a.c.ratio-b.c.ratio);
+  else if(activeTab.calib===tabs[1]) rows = all.filter(r=>r.c.calib==='WellCalibrated').sort((a,b)=>Math.abs(a.c.ratio-1)-Math.abs(b.c.ratio-1));
+  else if(activeTab.calib===tabs[2]) rows = all.filter(r=>r.c.calib==='TooEasy').sort((a,b)=>b.c.ratio-a.c.ratio);
+  else rows = all.filter(r=>r.c.calib==='Insufficient data').sort((a,b)=>b.c.target-a.c.target);
+
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Target Calibration <span>Check</span></div><div class="section-hint">projects each expert's current pace across the full ${META.programMonths}-month cycle and compares it to their assigned target</div></div>
+    <div class="panel">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px;">
+        ${kpi('Behind target', fmtNum(dist.Overstretched), fmtPct(safeDiv(dist.Overstretched,denom))+' of experts', 'red')}
+        ${kpi('On target', fmtNum(dist.WellCalibrated), fmtPct(safeDiv(dist.WellCalibrated,denom))+' of experts', 'green')}
+        ${kpi('Exceeding target', fmtNum(dist.TooEasy), fmtPct(safeDiv(dist.TooEasy,denom))+' of experts', 'violet')}
+        ${kpi('No volume', fmtNum(dist['Insufficient data']), fmtPct(safeDiv(dist['Insufficient data'],denom))+' of experts', 'amber')}
+      </div>
+      <div class="tabs">${tabs.map(t=>`<div class="tab ${activeTab.calib===t?'on':''}" data-calibtab="${t}">${t}</div>`).join('')}</div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:26px;"></th><th>Expert</th><th>Territory / TO</th><th class="num">Target</th><th class="num">Projected (current pace)</th><th class="num">ACH%</th></tr></thead>
+        <tbody>
+        ${rows.map((r,i)=>{
+          return `<tr class="clickable" data-eng="${r.e.id}">
+            <td class="rank">${i+1}</td>
+            <td class="name">${escapeHtml(r.e.name)}</td>
+            <td>${escapeHtml(r.e.territory)} · ${escapeHtml(r.e.toName)}</td>
+            <td class="num">${fmtNum(r.c.target)}</td>
+            <td class="num">${fmtNum(r.c.projectedFull)}</td>
+            <td class="num">${isFinite(r.c.ratio)? fmtPct(r.c.ratio) : '—'}</td>
+          </tr>`;
+        }).join('') || `<tr><td colspan="6" class="empty">No experts in this category for the current scope.</td></tr>`}
+        </tbody></table>
+      </div>
+      <div class="footnote">"Behind Target" = current pace projects to under 80% of target by December — worth a coaching check-in or a target review. "On Target" = projects to 80\u2013110% of target. "Exceeding Target" = current pace projects to over 110% of target — a strong performer, or a signal to raise the target next cycle. "No Volume" = not enough volume data yet to classify.</div>
+    </div>
+  `;
+  setTimeout(()=>{
+    sec.querySelectorAll('.tab[data-calibtab]').forEach(t=> t.onclick=()=>{ activeTab.calib=t.dataset.calibtab; const fresh=renderCalibrationSection(list,isSummary); sec.replaceWith(fresh); });
+    sec.querySelectorAll('tr.clickable').forEach(tr=> tr.onclick=()=>{ viewMode='drilldown'; path.engId=Number(tr.dataset.eng); render(); });
+  },0);
+  return sec;
+}
+
+/* ---- Explorer (drill-down children table) ---- */
+function renderExplorerSection(level, list){
+  const sec = el(`<div class="section"></div>`);
+  const field = childField(level);
+  let rows = [];
+  if(field==='region'){ rows = groupBy(list, e=>e.region, e=>e.region); }
+  else if(field==='area'){ rows = groupBy(list, e=>e.area, e=>e.area); }
+  else if(field==='territory'){ rows = groupBy(list, e=>e.territory, e=>e.territory); }
+  else if(field==='to'){ rows = groupBy(list, e=>e.toId||e.toName, e=>e.toName); }
+  else if(field==='engineer'){ rows = list.map(e=>({key:e.id, name:e.name, items:[e]})); }
+
+  const computed = rows.map(g=>({...g, m:computeScopeMetrics(g.items, selectedMonths)})).sort((a,b)=>b.m.totalVol-a.m.totalVol);
+  const scores = computed.map(c=>c.m.totalVol);
+  const q = quantiles(scores);
+  const filtered = searchQuery ? computed.filter(c=> (c.name||'').toLowerCase().includes(searchQuery.toLowerCase())) : computed;
+  const label = {region:'Regions', area:'Areas', territory:'Territories', to:'Technical Officers', engineer:'Experts'}[field];
+
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Drill Down <span>· ${label}</span></div><div class="section-hint">click a row to go deeper</div></div>
+    <div class="panel">
+      <div class="search-box"><span>🔍</span><input id="explorerSearch" placeholder="Filter ${label.toLowerCase()} by name..." value="${escapeHtml(searchQuery)}"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:26px;"></th><th>Name</th><th class="num">Experts</th><th class="num">Contributors</th><th class="num">Volume (${UNIT})</th><th class="num">Points</th><th class="num">Proj.</th><th class="num">Avg Ach.</th><th>Status</th></tr></thead>
+          <tbody>
+          ${filtered.map((c,i)=>{
+            const cat = perfCategory(c.m.totalVol, q);
+            return `<tr class="clickable" data-field="${field}" data-key="${escapeHtml(String(c.key))}">
+              <td class="rank">${i+1}</td>
+              <td class="name">${escapeHtml(c.name||'—')}</td>
+              <td class="num">${c.m.count}</td>
+              <td class="num">${c.m.contributors}</td>
+              <td class="num">${fmtNum(c.m.totalVol)}</td>
+              <td class="num">${fmtNum(c.m.totalPts)}</td>
+              <td class="num">${fmtNum(c.m.totalNP)}</td>
+              <td class="num">${fmtPct(c.m.avgAch)}</td>
+              <td><span class="tag ${cat}">${cat}</span></td>
+            </tr>`;
+          }).join('') || `<tr><td colspan="9" class="empty">No matches.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  setTimeout(()=>{
+    const s = document.getElementById('explorerSearch');
+    if(s){ s.oninput = (ev)=>{ searchQuery = ev.target.value; renderExplorerOnly(); }; }
+    sec.querySelectorAll('tr.clickable').forEach(tr=>{ tr.onclick = ()=>{ drillInto(tr.dataset.field, tr.dataset.key); }; });
+  },0);
+  return sec;
+}
+function renderExplorerOnly(){
+  const level = currentLevel();
+  const list = scopeEngineers(path);
+  const content = document.getElementById('content');
+  const sections = content.querySelectorAll('.section');
+  const target = Array.from(sections).find(s=>s.querySelector('.section-title')&&s.querySelector('.section-title').textContent.includes('Drill Down'));
+  if(target){ const fresh = renderExplorerSection(level, list); target.replaceWith(fresh); const s=document.getElementById('explorerSearch'); if(s){ s.focus(); s.setSelectionRange(s.value.length,s.value.length); } }
+}
+function drillInto(field, key){
+  if(field==='region'){ path.region=key; }
+  else if(field==='area'){ path.area=key; }
+  else if(field==='territory'){ path.territory=key; }
+  else if(field==='to'){ const e = scopeEngineers(path).find(e=>String(e.toId||e.toName)===key); path.toId=key; path.toName = e?e.toName:key; }
+  else if(field==='engineer'){ path.engId = Number(key); }
+  searchQuery='';
+  render();
+}
+
+/* ---- Leaderboard section ---- */
+function renderLeaderboardSection(level, list){
+  const sec = el(`<div class="section"></div>`);
+  const tabs = ['Top Experts (Points)','Bottom Experts (Points)','Top Special-Product Sellers'];
+  activeTab.lb = activeTab.lb || tabs[0];
+
+  function engRows(sortFn){
+    const arr = list.map(e=>{ const pt=prodVolMap(e,selectedMonths); return {e, vol:engMonthlyVol(e,selectedMonths), pts:engMonthlyPts(e,selectedMonths), spec:specialVol(pt), norm:normalVol(pt)}; });
+    arr.sort(sortFn);
+    return arr;
+  }
+  let rows;
+  if(activeTab.lb==='Top Experts (Points)') rows = engRows((a,b)=>b.pts-a.pts);
+  else if(activeTab.lb==='Bottom Experts (Points)') rows = engRows((a,b)=>a.pts-b.pts);
+  else rows = engRows((a,b)=>b.spec-a.spec);
+
+  const isSpecialTab = activeTab.lb==='Top Special-Product Sellers';
+
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Leaderboards</div><div class="section-hint">Special = HWP+HCG+PLC+ only</div></div>
+    <div class="panel">
+      <div class="tabs">${tabs.map(t=>`<div class="tab ${activeTab.lb===t?'on':''}" data-tab="${t}">${t}</div>`).join('')}</div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:26px;"></th><th>Expert</th><th>Territory / TO</th><th class="num">Volume</th><th class="num">Points</th><th class="num">${isSpecialTab?'SP Volume':'Target'}</th>${isSpecialTab?'':'<th class="num">%Ach</th>'}</tr></thead>
+        <tbody>
+        ${rows.map((r,i)=>{
+          return `<tr class="clickable" data-eng="${r.e.id}">
+            <td class="rank">${i+1}</td>
+            <td class="name">${escapeHtml(r.e.name)}</td>
+            <td>${escapeHtml(r.e.territory)} · ${escapeHtml(r.e.toName)}</td>
+            <td class="num">${fmtNum(r.vol)}</td>
+            <td class="num">${fmtNum(r.pts)}</td>
+            <td class="num">${isSpecialTab? fmtNum(r.spec) : fmtNum(r.e.targetPoints)}</td>
+            ${isSpecialTab?'':`<td class="num">${fmtPct(r.e.achPct||0)}</td>`}
+          </tr>`;
+        }).join('') || `<tr><td colspan="7" class="empty">No experts in this scope.</td></tr>`}
+        </tbody></table>
+      </div>
+    </div>
+  `;
+  setTimeout(()=>{
+    sec.querySelectorAll('.tab').forEach(t=> t.onclick = ()=>{ activeTab.lb=t.dataset.tab; const fresh=renderLeaderboardSection(level,list); sec.replaceWith(fresh); });
+    sec.querySelectorAll('tr.clickable').forEach(tr=> tr.onclick = ()=>{ viewMode='drilldown'; path.engId = Number(tr.dataset.eng); render(); });
+  },0);
+  return sec;
+}
+
+/* ---- Insights ---- */
+function renderInsightsSection(){
+  const sec = el(`<div class="section"></div>`);
+  const insights = generateInsights();
+  sec.innerHTML = `
+    <div class="section-head"><div class="section-title">Decision <span>Intelligence</span></div></div>
+    <div class="panel">
+      <ul class="insight-list">${insights.map(i=>`<li class="${i.type}"><b>${escapeHtml(i.title)}:</b> ${escapeHtml(i.body)}</li>`).join('')}</ul>
+      <div class="footnote">Auto-generated from volume, points and achievement figures for the months currently selected. Re-runs automatically whenever a new month is added to the Sheet.</div>
+    </div>
+  `;
+  return sec;
+}
+function generateInsights(){
+  const insights = [];
+  const months = selectedMonths;
+  const visList = scopeEngineers({});
+  if(months.length>=2){
+    const first = months[0], last = months[months.length-1];
+    const regions = groupBy(visList, e=>e.region, e=>e.region);
+    const growth = regions.map(r=>{
+      const v0 = r.items.reduce((s,e)=>s+((e.monthly[first]||{}).totalVol||0),0);
+      const v1 = r.items.reduce((s,e)=>s+((e.monthly[last]||{}).totalVol||0),0);
+      return {name:r.name, growth: v0? (v1-v0)/v0 : (v1>0?1:0), v0, v1};
+    }).filter(r=>r.v0+r.v1>0);
+    growth.sort((a,b)=>b.growth-a.growth);
+    if(growth.length){
+      const top = growth[0], bottom = growth[growth.length-1];
+      insights.push({type:'opp', title:'Fastest-growing region', body:`${top.name} moved from ${fmtNum(top.v0)} to ${fmtNum(top.v1)} ${UNIT} (${first}→${last}), a ${fmtPct(top.growth)} change.`});
+      if(bottom.growth<0) insights.push({type:'risk', title:'Region losing momentum', body:`${bottom.name} fell from ${fmtNum(bottom.v0)} to ${fmtNum(bottom.v1)} ${UNIT} (${fmtPct(bottom.growth)}) — flag for regional sales lead follow-up.`});
+    }
+    const prodShare = mon => {
+      const tot = {}; let grand=0;
+      META.products.forEach(p=>{ tot[p]=visList.reduce((s,e)=>s+(((e.monthly[mon]||{}).vol||{})[p]||0),0); grand+=tot[p]; });
+      const share={}; META.products.forEach(p=> share[p]=safeDiv(tot[p],grand));
+      return share;
+    };
+    const s0 = prodShare(first), s1 = prodShare(last);
+    let worstProd=null, worstDelta=0;
+    META.products.forEach(p=>{ const d=s1[p]-s0[p]; if(d<worstDelta){ worstDelta=d; worstProd=p; } });
+    if(worstProd) insights.push({type:'watch', title:'Product share slipping', body:`${META.labelMap[worstProd]||worstProd}'s share of total volume moved from ${fmtPct(s0[worstProd])} to ${fmtPct(s1[worstProd])} between ${first} and ${last}.`});
+  }
+  const tos = groupBy(visList, e=>e.toId||e.toName, e=>e.toName);
+  const toStats = tos.map(t=>{ const m = computeScopeMetrics(t.items, months); return {name:t.name, count:m.count, avgVol: safeDiv(m.totalVol, m.count), contributors:m.contributors}; }).filter(t=>t.count>=3);
+  toStats.sort((a,b)=>a.avgVol-b.avgVol);
+  if(toStats.length){ const worstTO = toStats[0]; insights.push({type:'risk', title:'TO likely needs support', body:`${worstTO.name} manages ${worstTO.count} experts averaging only ${fmtNum(worstTO.avgVol)} ${UNIT} each, with just ${worstTO.contributors} contributing.`}); }
+  toStats.sort((a,b)=>b.avgVol-a.avgVol);
+  if(toStats.length){ const bestTO = toStats[0]; insights.push({type:'opp', title:'Top-performing TO', body:`${bestTO.name} drives an average of ${fmtNum(bestTO.avgVol)} ${UNIT} per expert across ${bestTO.count} experts — a candidate to share best practices nationally.`}); }
+  const inactive = visList.filter(e=>engIsInactive(e,months));
+  if(inactive.length){ insights.push({type:'watch', title:'Zero-volume experts', body:`${inactive.length} enrolled experts (${fmtPct(safeDiv(inactive.length, visList.length))} of the base) recorded no volume across ${months.join(', ')} — re-engagement outreach recommended.`}); }
+  const behind = visList.map(e=>engineerRoadmap(e)).filter(r=>r.status==='Critical').length;
+  insights.push({type:'risk', title:'Experts falling behind target', body:`${behind} experts are currently tracking "Critical" on the target roadmap (need a large points jump to hit target within the remaining program months).`});
+  const specTotal = visList.reduce((s,e)=>{const pt=prodVolMap(e,months); return s+specialVol(pt);},0);
+  const normTotal = visList.reduce((s,e)=>{const pt=prodVolMap(e,months); return s+normalVol(pt);},0);
+  insights.push({type:'watch', title:'Normal vs Special mix', body:`Special products (HWP, HCG, PLC+) make up ${fmtPct(safeDiv(specTotal, specTotal+normTotal))} of qualifying volume so far — worth tracking against the program's premium-mix target.`});
+  const calibAll = visList.map(e=>engineerCalibration(e));
+  const overstretched = calibAll.filter(c=>c.calib==='Overstretched').length;
+  const tooEasy = calibAll.filter(c=>c.calib==='TooEasy').length;
+  if(overstretched>0) insights.push({type:'risk', title:'Experts behind target', body:`${overstretched} experts (${fmtPct(safeDiv(overstretched, visList.length))}) are on a pace that would land under 80% of their assigned target — worth a target re-calibration review with HR/TOs.`});
+  if(tooEasy>0) insights.push({type:'opp', title:'Experts exceeding target', body:`${tooEasy} experts are on pace to clear 110%+ of their target — worth recognizing, and worth revisiting for next cycle's target-setting.`});
+  return insights;
+}
+
+/* ---- Expert profile (leaf, drilldown only) ---- */
+function renderEngineerProfile(content, e){
+  if(!e){ content.appendChild(el(`<div class="empty">Expert not found.</div>`)); return; }
+  const months = selectedMonths;
+  const vol = engMonthlyVol(e, months);
+  const pts = engMonthlyPts(e, months);
+  const ach = e.achPct||0;
+  const initials = (e.name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  const byPts = ENGINEERS.slice().sort((a,b)=>engMonthlyPts(b,months)-engMonthlyPts(a,months));
+  const rankNational = byPts.findIndex(x=>x.id===e.id)+1;
+  const toPeers = ENGINEERS.filter(x=>(x.toId||x.toName)===(e.toId||e.toName)).sort((a,b)=>engMonthlyPts(b,months)-engMonthlyPts(a,months));
+  const rankTO = toPeers.findIndex(x=>x.id===e.id)+1;
+  const terrPeers = ENGINEERS.filter(x=>x.territory===e.territory).sort((a,b)=>engMonthlyPts(b,months)-engMonthlyPts(a,months));
+  const rankTerr = terrPeers.findIndex(x=>x.id===e.id)+1;
+
+  const productTotals = prodVolMap(e, months);
+  const spec = specialVol(productTotals), norm = normalVol(productTotals);
+
+  const scores = ENGINEERS.map(x=>engMonthlyPts(x,months));
+  const q = quantiles(scores);
+  const cat = perfCategory(pts, q);
+  const rm = engineerRoadmap(e);
+  const calib = engineerCalibration(e);
+
+  // strength / weakness
+  const terrProductTotals = {}; META.products.forEach(p=> terrProductTotals[p]=terrPeers.reduce((s,x)=>s+engProductVol(x,p,months),0));
+  const strengths=[], weaknesses=[];
+  META.products.forEach(p=>{
+    const terrAvg = safeDiv(terrProductTotals[p], terrPeers.length||1);
+    const mine = productTotals[p]||0;
+    if(terrAvg>0){
+      if(mine >= terrAvg*1.3) strengths.push(`${META.labelMap[p]||p} (${fmtNum(mine)} ${UNIT} vs territory avg ${fmtNum(terrAvg)})`);
+      else if(mine <= terrAvg*0.5) weaknesses.push(`${META.labelMap[p]||p} (${fmtNum(mine)} ${UNIT} vs territory avg ${fmtNum(terrAvg)})`);
+    }
+  });
+  if(!strengths.length) strengths.push('No product clearly above territory average yet.');
+  if(!weaknesses.length) weaknesses.push('No product significantly below territory average.');
+
+  const recs = [];
+  if(rm.status==='Critical') recs.push('Schedule an urgent check-in with the TO — current pace will miss the full-cycle target.');
+  else if(rm.status==='NeedsImprovement') recs.push('On a workable path, but needs a deliberate push — set a monthly point checkpoint with the TO.');
+  if(spec < norm*0.15) recs.push('Encourage cross-selling of special products (HWP / HCG / PLC+) to lift the point mix.');
+  if(ach<0.15) recs.push('Cumulative achievement is well below target — review target-setting or offer a mid-cycle incentive.');
+  if(cat==='High') recs.push('Strong performer — good candidate to profile for peer recognition / case study.');
+  if(!recs.length) recs.push('Performance is on track — maintain current engagement cadence.');
+
+  content.innerHTML = '';
+  content.appendChild(el(`
+    <div class="scope-head">
+      <div class="profile-card">
+        <div class="avatar">${escapeHtml(initials)}</div>
+        <div>
+          <div class="scope-title">${escapeHtml(e.name)}</div>
+          <div class="profile-meta">
+            <span><b>Region</b> ${escapeHtml(e.region)}</span>
+            <span><b>Area</b> ${escapeHtml(e.area)}</span>
+            <span><b>Territory</b> ${escapeHtml(e.territory)}</span>
+            <span><b>TO</b> ${escapeHtml(e.toName)}</span>
+            <span><b>Enrolled</b> ${escapeHtml(e.enrollMonth)}</span>
+          </div>
+        </div>
+      </div>
+      <span class="tag ${cat}">${cat} performer</span>
+    </div>
+  `));
+
+  const kpiWrap = el(`<div class="kpi-grid"></div>`);
+  kpiWrap.innerHTML =
+    kpi('Volume (selected months)', fmtNum(vol)+' '+UNIT, months.join(' + ')) +
+    kpi('Points (selected months)', fmtNum(pts), `Target ${fmtNum(e.targetPoints)}`, 'violet') +
+    kpi('Cumulative achievement', fmtPct(ach), 'campaign till date', 'green') +
+    kpi('National rank (points)', '#'+rankNational, `of ${ENGINEERS.length} experts`, 'amber') +
+    kpi('Rank within Territory', '#'+rankTerr, `of ${terrPeers.length} in ${escapeHtml(e.territory)}`) +
+    kpi('Rank within TO', '#'+rankTO, `of ${toPeers.length} under ${escapeHtml(e.toName)}`);
+  content.appendChild(kpiWrap);
+
+  /* --- Target Achievement Roadmap (detailed, per spec) --- */
+  const rmSec = el(`<div class="section"></div>`);
+  rmSec.innerHTML = `
+    <div class="section-head"><div class="section-title">Target Achievement <span>Roadmap</span></div><span class="status-pill ${rm.status}">${STATUS_LABEL[rm.status]}</span></div>
+    <div class="roadmap-card">
+      <div class="roadmap-top">
+        <div><div class="rlabel" style="font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;">Total target</div><div class="roadmap-stat">${fmtNum(rm.target)} pts</div></div>
+        <div><div class="rlabel" style="font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;">Current earned</div><div class="roadmap-stat" style="color:var(--steel-text);">${fmtNum(rm.current)} pts</div></div>
+        <div><div class="rlabel" style="font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;">Remaining</div><div class="roadmap-stat" style="color:${rm.remaining>0?'var(--amber-text)':'var(--green-text)'};">${fmtNum(Math.max(rm.remaining,0))} pts</div></div>
+        <div><div class="rlabel" style="font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em;">Achievement</div><div class="roadmap-stat">${fmtPct(rm.achPct)}</div></div>
+      </div>
+      <div class="roadmap-track"><i style="width:${Math.min(100,rm.achPct*100)}%"></i></div>
+      <div class="roadmap-grid">
+        ${roadmapMini('Months elapsed', rm.elapsed+' of '+META.programMonths)}
+        ${roadmapMini('Remaining months', rm.remainingMonths)}
+        ${roadmapMini('Current avg / month', fmtNum(rm.avgMonthly)+' pts')}
+        ${roadmapMini('Required / month', isFinite(rm.requiredMonthly)? fmtNum(rm.requiredMonthly)+' pts' : 'unreachable')}
+        ${roadmapMini('Required weekly', isFinite(rm.requiredMonthly)? fmtNum(rm.requiredMonthly/4.33)+' pts' : '—')}
+        ${roadmapMini('Required growth vs current pace', isFinite(rm.requiredGrowthPct)? fmtSigned(rm.requiredGrowthPct*100)+'%' : 'n/a — no baseline yet')}
+        ${roadmapMini('Target calibration', `<span style="color:${CALIB_COLOR[calib.calib]}">${CALIB_LABEL[calib.calib]}</span>`)}
+      </div>
+      <div class="footnote">Program assumed as ${META.programMonths} months (April–December); ${rm.elapsed} counted from months currently in the uploaded data. This roadmap recalculates automatically as the Sheet is updated. Calibration check: at the current pace this expert projects to ${isFinite(calib.ratio)?fmtPct(calib.ratio):'—'} of their assigned target by December — ${calib.calib==='Overstretched'?'the target may be set too high for a realistic pace.':calib.calib==='TooEasy'?'the target looks easy to clear — worth raising next cycle.':calib.calib==='WellCalibrated'?'the target looks realistically set.':'not enough volume data yet to judge.'}</div>
+    </div>
+  `;
+  content.appendChild(rmSec);
+
+  const projRow = projectionPanelHTML([e], escapeHtml(e.name));
+  const grid = el(`<div class="section grid2 align-top"></div>`);
+  grid.innerHTML = `
+    ${projRow.html}
+    <div class="panel">
+      <div class="section-title" style="margin-bottom:10px;">Monthly volume by product (${UNIT})</div>
+      <div class="chart-box"><canvas id="chartEngVol"></canvas></div>
+    </div>
+  `;
+  content.appendChild(grid);
+
+  const grid1b = el(`<div class="section grid2"></div>`);
+  grid1b.innerHTML = `
+    <div class="panel">
+      <div class="section-title" style="margin-bottom:10px;">Points trend (basic vs bonus)</div>
+      <div class="chart-box"><canvas id="chartEngPts"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="section-title" style="margin-bottom:10px;">Projects by product</div>
+      <div class="chart-box"><canvas id="chartEngNP"></canvas></div>
+    </div>
+  `;
+  content.appendChild(grid1b);
+
+  const grid2 = el(`<div class="section grid2"></div>`);
+  grid2.innerHTML = `
+    <div class="panel">
+      <div class="section-title" style="margin-bottom:10px;">Strength / Weakness (vs territory average)</div>
+      <div style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px;">Strengths</div>
+      <ul class="insight-list">${strengths.map(s=>`<li class="opp">${escapeHtml(s)}</li>`).join('')}</ul>
+      <div style="font-size:11px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin:12px 0 4px;">Weaknesses</div>
+      <ul class="insight-list">${weaknesses.map(s=>`<li class="risk">${escapeHtml(s)}</li>`).join('')}</ul>
+    </div>
+    <div class="panel">
+      <div class="section-title" style="margin-bottom:10px;">AI Recommendations</div>
+      <ul class="insight-list">${recs.map(r=>`<li>${escapeHtml(r)}</li>`).join('')}</ul>
+    </div>
+  `;
+  content.appendChild(grid2);
+
+  setTimeout(()=>{
+    makeChart('chartEngVol', {
+      type:'bar',
+      data:{ labels:months, datasets: META.products.map((p,i)=>({label:META.labelMap[p]||p, data:months.map(mo=>((e.monthly[mo]||{}).vol||{})[p]||0), backgroundColor:PRODUCT_PALETTE[i%PRODUCT_PALETTE.length]})) },
+      options:{ plugins:{legend:{labels:{color:'#5B6670', font:{size:10.5}}}, datalabels:dl()}, scales:{x:{stacked:true, ticks:{color:'#5B6670'}, grid:{display:false}}, y:{stacked:true, ticks:{color:'#5B6670'}, grid:{display:false}}} }
+    });
+    makeChart('chartEngPts', {
+      type:'bar',
+      data:{ labels:months, datasets:[
+        {label:'Basic points', data:months.map(mo=>(e.monthly[mo]||{}).basicPts||0), backgroundColor:'#4E8FC0'},
+        {label:'Bonus points', data:months.map(mo=>(e.monthly[mo]||{}).bonusPts||0), backgroundColor:'#E3A23D'}
+      ]},
+      options:{ plugins:{legend:{labels:{color:'#5B6670'}}, datalabels:dl()}, scales:{x:{stacked:true, ticks:{color:'#5B6670'}, grid:{display:false}}, y:{stacked:true, ticks:{color:'#5B6670'}, grid:{display:false}}} }
+    });
+    makeChart('chartEngNP', {
+      type:'bar',
+      data:{ labels:META.products.map(p=>META.labelMap[p]||p), datasets:[{label:'Projects', data:META.products.map(p=>engProductNP(e,p,months)), backgroundColor:PRODUCT_PALETTE, borderRadius:2}] },
+      options:{ plugins:{legend:{display:false}, datalabels:dl({anchor:'end', align:'top', color:'#1B2126'})}, scales:{x:{ticks:{color:'#5B6670'},grid:{display:false}}, y:{ticks:{color:'#5B6670'},grid:{display:false}, grace:'12%', beginAtZero:true}} }
+    });
+  },0);
+}
+
+function showToast(msg, isErr){
+  const t = el(`<div class="toast ${isErr?'err':''}">${escapeHtml(msg)}</div>`);
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), 5200);
+}
+
+function refreshData(){
+  const btn = document.getElementById('btnRefresh');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Refreshing…'; }
+  if(typeof google === 'undefined' || !google.script || !google.script.run){
+    // Standalone static build — just re-fetch the JSON endpoint in place.
+    fetch(APPS_SCRIPT_URL)
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(data){
+        EMBEDDED = data;
+        loadData(EMBEDDED);
+        showToast(`Refreshed — ${data.rows.length} experts across ${data.meta.months.join(', ')}.`);
+        const b = document.getElementById('btnRefresh');
+        if(b){ b.disabled = false; b.textContent = '⟳ Refresh data'; }
+      })
+      .catch(function(err){
+        showToast('Could not refresh: ' + (err && err.message ? err.message : err), true);
+        if(btn){ btn.disabled = false; btn.textContent = '⟳ Refresh data'; }
+      });
+    return;
+  }
+  google.script.run
+    .withSuccessHandler(function(fresh){
+      EMBEDDED.meta = fresh.meta;
+      EMBEDDED.rows = fresh.rows;
+      loadData(EMBEDDED);
+      showToast(`Refreshed — ${fresh.rows.length} experts across ${fresh.meta.months.join(', ')}.`);
+      const b = document.getElementById('btnRefresh');
+      if(b){ b.disabled = false; b.textContent = '⟳ Refresh data'; }
+    })
+    .withFailureHandler(function(err){
+      showToast('Could not refresh: ' + (err && err.message ? err.message : err), true);
+      if(btn){ btn.disabled = false; btn.textContent = '⟳ Refresh data'; }
+    })
+    .getLatestData();
+}
+
+/* ---------- init ---------- */
+fetchLiveData();
+
+function fetchLiveData(){
+  fetch(APPS_SCRIPT_URL)
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    })
+    .then(function(data){
+      EMBEDDED = data;
+      loadData(EMBEDDED);
+    })
+    .catch(function(err){
+      document.getElementById('app').innerHTML =
+        '<div style="max-width:560px;margin:80px auto;padding:24px;font-family:Arial,sans-serif;color:#1B2126;text-align:center;">' +
+        '<h2>Could not load live data</h2>' +
+        '<p>The dashboard could not reach the Apps Script backend.</p>' +
+        '<p style="color:#8A939B;font-size:13px;">'+ (err && err.message ? err.message : err) +'</p>' +
+        '<button onclick="location.reload()" style="margin-top:12px;padding:10px 18px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;">Try again</button>' +
+        '</div>';
+    });
+}
+
+})();
+</script>
+</body>
+</html>
