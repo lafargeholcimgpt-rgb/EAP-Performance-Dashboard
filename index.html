@@ -856,7 +856,7 @@ function tierDistribution(list){
     o.totalVol += engMonthlyVol(e, selectedMonths);
     o.totalPts += engMonthlyPts(e, selectedMonths);
   });
-  return Array.from(map.values()).sort((a,b)=>a.target-b.target);
+  return Array.from(map.values()).sort((a,b)=>b.target-a.target);
 }
 
 /* ---- Product section ---- */
@@ -1036,7 +1036,7 @@ function renderCalibrationSection(list, isSummary){
   activeTab.calib = activeTab.calib || tabs[0];
   let rows;
   if(activeTab.calib===tabs[0]) rows = all.filter(r=>r.c.calib==='Overstretched').sort((a,b)=>a.c.ratio-b.c.ratio);
-  else if(activeTab.calib===tabs[1]) rows = all.filter(r=>r.c.calib==='WellCalibrated').sort((a,b)=>Math.abs(a.c.ratio-1)-Math.abs(b.c.ratio-1));
+  else if(activeTab.calib===tabs[1]) rows = all.filter(r=>r.c.calib==='WellCalibrated').sort((a,b)=>b.c.ratio-a.c.ratio);
   else if(activeTab.calib===tabs[2]) rows = all.filter(r=>r.c.calib==='TooEasy').sort((a,b)=>b.c.ratio-a.c.ratio);
   else rows = all.filter(r=>r.c.calib==='Insufficient data').sort((a,b)=>b.c.target-a.c.target);
 
